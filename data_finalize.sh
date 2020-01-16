@@ -72,11 +72,12 @@ done
 # Get list of disasters to iterate over 
 disasters=`/bin/ls -1 "$input"`
 
+: <<'END'
+
 # Making the spacenet training directory 
 mkdir -p "$input"/spacenet_gt/images
 mkdir -p "$input"/spacenet_gt/labels
 mkdir -p "$input"/spacenet_gt/dataSet
-
 # for each disaster, copy the pre images and labels to the spacenet training directory
 for disaster in $disasters; do
     masks=`/bin/ls -1 "$input"/"$disaster"/masks`
@@ -89,7 +90,8 @@ done
 # Listing all files to do the split
 cd "$input"/spacenet_gt/dataSet/
 touch all_images.txt
-/bin/ls -1 "$input"/spacenet_gt/images > all_images.txt
+/bin/ls -1 ../images > all_images.txt
+
 
 line_count=`cat all_images.txt | wc -l`
 lines_to_split=$(bc -l <<< "$line_count"*"$split")
@@ -98,7 +100,8 @@ split -l `awk -F. '{print $1}' <<< $lines_to_split` all_images.txt
 mv ./xaa train.txt
 mv ./xab val.txt
 rm all_images.txt
-
+END
+echo "line 107"
 # Running the mean creation code over the images
 python "$XBDIR"/spacenet/src/features/compute_mean.py "$input"/spacenet_gt/dataSet/train.txt --root "$input"/spacenet_gt/images/ --output "$input"/spacenet_gt/dataSet/mean.npy 
 
